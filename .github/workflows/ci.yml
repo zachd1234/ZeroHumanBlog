@@ -49,16 +49,22 @@ jobs:
         echo "Original JAR size:"
         ls -lh autoblog4-1.0-SNAPSHOT.jar
         
-        # Create a minimal JAR with just our classes
+        # Extract the JAR
+        echo "\nExtracting JAR..."
+        mkdir -p extract
+        cd extract
+        jar xf ../autoblog4-1.0-SNAPSHOT.jar
+        
+        # Create a minimal package
+        echo "\nCreating minimal package..."
         mkdir -p minimal/com/zho/services/DailyPosts/lambda
         cp com/zho/services/DailyPosts/lambda/ContentGenerationHandler.class minimal/com/zho/services/DailyPosts/lambda/
         
-        # Only include essential dependencies
-        echo "\nCreating minimal zip..."
+        # Create minimal zip
         cd minimal
-        zip -r ../function.zip .
+        zip -r ../../function.zip .
         
-        cd ..
+        cd ../..
         echo "\nFinal zip size:"
         ls -lh function.zip
         echo "\nZip contents:"
