@@ -49,19 +49,20 @@ jobs:
         echo "Original JAR size:"
         ls -lh autoblog4-1.0-SNAPSHOT.jar
         
-        # Extract the class files
-        mkdir -p classes
-        cd classes
-        jar xf ../autoblog4-1.0-SNAPSHOT.jar
+        # Create a minimal JAR with just our classes
+        mkdir -p minimal/com/zho/services/DailyPosts/lambda
+        cp com/zho/services/DailyPosts/lambda/ContentGenerationHandler.class minimal/com/zho/services/DailyPosts/lambda/
         
-        # Create zip with class files directly
+        # Only include essential dependencies
+        echo "\nCreating minimal zip..."
+        cd minimal
         zip -r ../function.zip .
         
         cd ..
-        echo "\nZip contents structure:"
-        unzip -l function.zip | grep -i "ContentGenerationHandler"
-        echo "\nFull package path:"
-        unzip -l function.zip | grep -i "com/zho/services/DailyPosts/lambda"
+        echo "\nFinal zip size:"
+        ls -lh function.zip
+        echo "\nZip contents:"
+        unzip -l function.zip
 
     - name: Upload to S3 and update Lambda
       run: |
