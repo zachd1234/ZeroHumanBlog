@@ -49,10 +49,16 @@ jobs:
         echo "Original JAR size:"
         ls -lh autoblog4-1.0-SNAPSHOT.jar
         
+        echo "\nVerifying class existence:"
+        jar tvf autoblog4-1.0-SNAPSHOT.jar | grep -i "ContentGenerationHandler"
+        
+        echo "\nVerifying package structure:"
+        jar tvf autoblog4-1.0-SNAPSHOT.jar | grep -i "com/zho/services/DailyPosts/lambda"
+        
         # Just zip the JAR directly
         zip function.zip autoblog4-1.0-SNAPSHOT.jar
         
-        echo "Zip contents:"
+        echo "\nZip contents:"
         unzip -l function.zip
 
     - name: Upload to S3 and update Lambda
