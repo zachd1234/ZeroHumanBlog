@@ -23,7 +23,7 @@ jobs:
         cache: 'maven'
 
     - name: Build with Maven
-      run: mvn clean package -DskipTests
+      run: mvn clean package -DskipTests shade:shade
 
     - name: Run tests
       run: mvn test
@@ -38,6 +38,9 @@ jobs:
     - name: Zip JAR for Lambda
       run: |
         cd target
+        # Verify the JAR contents
+        jar tvf autoblog4-1.0-SNAPSHOT.jar | grep ContentGenerationHandler
+        # Create the zip
         zip function.zip autoblog4-1.0-SNAPSHOT.jar
         ls -lh function.zip
 
