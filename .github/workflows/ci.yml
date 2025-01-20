@@ -43,14 +43,21 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
 
-    - name: Zip JAR for Lambda
+    - name: Debug and Zip JAR for Lambda
       run: |
         cd target
-        # Verify the JAR contents
-        jar tvf autoblog4-1.0-SNAPSHOT.jar | grep ContentGenerationHandler
-        # Create the zip
-        zip function.zip autoblog4-1.0-SNAPSHOT.jar
-        ls -lh function.zip
+        echo "Original JAR size:"
+        ls -lh autoblog4-1.0-SNAPSHOT.jar
+        
+        # Create a proper directory structure in the zip
+        mkdir -p com/zho/services/DailyPosts/lambda
+        cp autoblog4-1.0-SNAPSHOT.jar com/zho/services/DailyPosts/lambda/
+        
+        # Create the zip with the directory structure
+        zip -r function.zip com/
+        
+        echo "Zip contents:"
+        unzip -l function.zip
 
     - name: Upload to S3 and update Lambda
       run: |
