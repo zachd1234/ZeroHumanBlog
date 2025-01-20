@@ -35,8 +35,15 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
 
+    - name: Zip JAR for Lambda
+      run: |
+        cd target
+        zip function.zip autoblog4-1.0-SNAPSHOT.jar
+        ls -lh function.zip
+
     - name: Update Lambda Function
       run: |
+        echo "Uploading zipped JAR to Lambda..."
         aws lambda update-function-code \
           --function-name PostGenerationFunction \
-          --zip-file fileb://target/original-autoblog4-1.0-SNAPSHOT.jar
+          --zip-file fileb://target/function.zip
