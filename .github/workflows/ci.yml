@@ -49,12 +49,8 @@ jobs:
         echo "Original JAR size:"
         ls -lh autoblog4-1.0-SNAPSHOT.jar
         
-        # Create a proper directory structure in the zip
-        mkdir -p com/zho/services/DailyPosts/lambda
-        cp autoblog4-1.0-SNAPSHOT.jar com/zho/services/DailyPosts/lambda/
-        
-        # Create the zip with the directory structure
-        zip -r function.zip com/
+        # Just zip the JAR directly
+        zip function.zip autoblog4-1.0-SNAPSHOT.jar
         
         echo "Zip contents:"
         unzip -l function.zip
