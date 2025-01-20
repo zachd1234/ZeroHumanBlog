@@ -1,82 +1,38 @@
-name: Java CI
+name: Java CI/CD
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
   pull_request:
-    branches:
-      - main
+    branches: [ "main" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
 
-    - name: Set up JDK
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up JDK 21
       uses: actions/setup-java@v3
       with:
         java-version: '21'
         distribution: 'temurin'
-        cache: 'maven'
-
+        cache: maven
+        
     - name: Build with Maven
-      run: mvn clean package shade:shade -DskipTests
-
-    - name: Debug JAR contents
-      run: |
-        cd target
-        echo "JAR size:"
-        ls -lh autoblog4-1.0-SNAPSHOT.jar
-        echo "Listing key classes:"
-        jar tvf autoblog4-1.0-SNAPSHOT.jar | grep -i contentgeneration
-
-    - name: Run tests
-      run: mvn test
-
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
+      run: mvn clean package
+        
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-1
-
-    - name: Debug and Package for Lambda
+        
+    - name: Update Lambda Function
       run: |
-        cd target
-        echo "Original JAR size:"
-        ls -lh autoblog4-1.0-SNAPSHOT.jar
-        
-        # Extract the JAR
-        echo "\nExtracting JAR..."
-        mkdir -p extract
-        cd extract
-        jar xf ../autoblog4-1.0-SNAPSHOT.jar
-        
-        # Create a minimal package
-        echo "\nCreating minimal package..."
-        mkdir -p minimal/com/zho/services/DailyPosts/lambda
-        cp com/zho/services/DailyPosts/lambda/ContentGenerationHandler.class minimal/com/zho/services/DailyPosts/lambda/
-        
-        # Create minimal zip
-        cd minimal
-        zip -r ../../function.zip .
-        
-        cd ../..
-        echo "\nFinal zip size:"
-        ls -lh function.zip
-        echo "\nZip contents:"
-        unzip -l function.zip
-
-    - name: Upload to S3 and update Lambda
-      run: |
-        echo "Uploading to S3..."
-        aws s3 cp target/function.zip s3://autoblog-lambda-deployment/function.zip
-        
-        echo "Updating Lambda from S3..."
+        echo "Updating Lambda function..."
         aws lambda update-function-code \
           --function-name PostGenerationFunction \
-          --s3-bucket autoblog-lambda-deployment \
-          --s3-key function.zip
+          --zip-file fileb://target/autoblog4-1.0-SNAPSHOT.jar
