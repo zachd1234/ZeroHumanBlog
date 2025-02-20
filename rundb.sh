@@ -1,1 +1,0 @@
-mysql -h autoblog1.cxa00q86wd3g.us-east-1.rds.amazonaws.com -u admin -pMk6eSRBMHUSiA8 autoblog1
